@@ -1,408 +1,323 @@
-\documentclass[10pt]{article}
-\usepackage[a4paper, margin=1in]{geometry}
+\documentclass[10pt, twocolumn]{article}
+\usepackage[a4paper, margin=0.5in, top=0.5in, bottom=0.5in]{geometry}
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{listings}
-\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage[compact]{titlesec}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, matrix, fit, calc, decorations.pathreplacing}
 
-% Define colors for code listings
-\definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
-\definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% --- These commands make all lists and headings more compact ---
+\setlist{nosep, leftmargin=*, itemsep=0pt, topsep=2pt, partopsep=0pt}
+\titlespacing*{\section}{0pt}{*1}{*1}
+\titlespacing*{\subsection}{0pt}{*0.5}{*0.5}
+\titlespacing*{\subsubsection}{0pt}{*0.5}{*0.5}
+\setlength{\columnsep}{1cm}
+
+\tikzstyle{arrow} = [thick,->,>=stealth]
 
 % Define a style for code listings
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{magenta},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    stringstyle=\color{purple},
+    basicstyle=\ttfamily\scriptsize,
     breakatwhitespace=false,
     breaklines=true,
-    captionpos=b,
     keepspaces=true,
-    numbers=left,
-    numbersep=5pt,
-    showspaces=false,
+    numbers=none,
     showstringspaces=false,
-    showtabs=false,
-    tabsize=2
 }
-
 \lstset{style=mystyle}
 
-% TikZ styles for diagrams
-\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
-\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
-\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
-\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
-\tikzstyle{arrow} = [thick,->,>=stealth]
-\tikzstyle{block} = [rectangle, draw, fill=blue!20, text width=6em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-\tikzstyle{mem} = [rectangle, draw, minimum width=2cm, minimum height=1cm, text centered]
-\tikzstyle{level} = [rectangle, draw, fill=blue!20, minimum width=6cm, text centered]
-
-
-\title{COMP2130 Cheat Sheet}
-\author{}
-\date{}
+\pagestyle{empty} % Removes page numbers
 
 \begin{document}
 
-\maketitle
+\section*{Machine-Level Programming I}
 
-\section{Week 1: Machine-Level Programming I: Basics}
-
-\subsection{History of Intel Processors and Architectures}
+\subsection*{Intel Processor History \& Compilation}
 \begin{itemize}
-    \item \textbf{Intel x86 Processors:} Dominant in the PC market, featuring a backward-compatible, evolutionary design. They are Complex Instruction Set Computers (CISC).
-    \item \textbf{Milestones:}
-    \begin{itemize}
-        \item \textbf{8086 (1978):} 16-bit processor, basis for IBM PC/DOS.
-        \item \textbf{386 (1985):} First 32-bit (IA32) processor.
-        \item \textbf{Pentium 4E (2004):} First 64-bit (x86-64) processor.
-        \item \textbf{Core 2 (2006):} First multi-core processor.
-        \item \textbf{Core i7 (2008):} Four cores, integrated memory controller.
-    \end{itemize}
-    \item \textbf{AMD:} Competitor to Intel, developed x86-64.
+    \item \textbf{Intel x86:} Dominant CISC architecture, backward-compatible.
+    \item \textbf{Milestones:} \textbf{8086} (16-bit), \textbf{386} (32-bit IA32), \textbf{Pentium 4E} (64-bit x86-64), \textbf{Core 2} (multi-core).
+    \item \textbf{Compilation:} C Code $\xrightarrow{\text{Compiler (gcc -S)}}$ Assembly $\xrightarrow{\text{Assembler (as)}}$ Object Code $\xrightarrow{\text{Linker (ld)}}$ Executable.
 \end{itemize}
 
-\subsection{C, Assembly, and Machine Code}
-The compilation process transforms human-readable C code into machine-executable code.
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[node distance=2cm]
-        \node (c_code) [block, fill=green!20] {C Program (p1.c p2.c)};
-        \node (asm_code) [block, fill=yellow!20, below of=c_code] {Assembly Program (p1.s p2.s)};
-        \node (obj_code) [block, fill=orange!20, below of=asm_code] {Object Program (p1.o p2.o)};
-        \node (exe_code) [block, fill=red!20, below of=obj_code] {Executable Program (p)};
-        \node (libs) [block, fill=blue!20, right of=obj_code, xshift=2cm] {Static Libraries (.a)};
-
-        \draw [arrow] (c_code) -- node[anchor=west] {Compiler (gcc -S)} (asm_code);
-        \draw [arrow] (asm_code) -- node[anchor=west] {Assembler (as)} (obj_code);
-        \draw [arrow] (obj_code) -- node[anchor=west] {Linker (ld)} (exe_code);
-        \draw [arrow] (libs) -- (exe_code);
-    \end{tikzpicture}
-    \caption{Compilation Process}
-\end{figure}
-
-\subsection{Assembly Basics}
+\subsection*{Assembly Basics}
 \begin{table}[h]
     \centering
-    \caption{x86-64 Registers}
-    \begin{tabular}{ll}
+    \caption{Key x86-64 Registers}
+    \scriptsize
+    \begin{tabular}{@{}lll@{}}
         \toprule
-        Register & Use \\
+        Register & Role & Saved By \\
         \midrule
-        \%rax & Return value \\
-        \%rdi, \%rsi, \%rdx, \%rcx, \%r8, \%r9 & First 6 function arguments \\
-        \%rsp & Stack pointer \\
+        \%rax & Return Value & Caller \\
+        \%rdi, \%rsi, \%rdx, \%rcx & Arguments 1-4 & Caller \\
+        \%r8, \%r9 & Arguments 5-6 & Caller \\
+        \%r10, \%r11 & Temporaries & Caller \\
+        \%rbx, \%r12-\%r15 & Temporaries & Callee \\
+        \%rsp, \%rbp & Stack/Base Pointer & Callee \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\subsubsection{Addressing Modes}
-\begin{lstlisting}[language=c]
-// Immediate: Constant integer data
-movq $0x4, %rax //
-
-// Register: One of 16 integer registers
-movq %rax, %rdx //
-
-// Memory: 8 consecutive bytes of memory at address
-movq (%rax), %rdx //
+\subsubsection*{Addressing Modes}
+General Form: \textbf{\texttt{D(Rb, Ri, S) $\rightarrow$ Mem[Rb + S*Ri + D]}}
+\begin{itemize}
+    \item \textbf{D:} Displacement (constant)
+    \item \textbf{Rb:} Base register
+    \item \textbf{Ri:} Index register
+    \item \textbf{S:} Scale factor (1, 2, 4, or 8)
+\end{itemize}
+\textbf{Examples:}
+\begin{lstlisting}[language=c, basicstyle=\ttfamily\tiny]
+// Immediate: Constant data
+movq $0x4, %rax
+// Register: Data in a register
+movq %rax, %rdx
+// Memory: Data at an address
+movq (%rax), %rdx // Normal
+movq 8(%rbp), %rdx // Displacement
 \end{lstlisting}
 
-\subsection{Arithmetic \& Logical Operations}
+\subsection*{Arithmetic \& Logical Operations}
 \begin{table}[h]
     \centering
-    \caption{Common Arithmetic and Logical Instructions}
-    \begin{tabular}{ll}
+    \caption{Common Instructions (q=8, l=4, w=2, b=1)}
+    \scriptsize
+    \begin{tabular}{@{}ll@{}}
         \toprule
         Instruction & Description \\
         \midrule
-        \texttt{leaq Src, Dst} & Load Effective Address \\
-        \texttt{addq Src, Dst} & Add \\
-        \texttt{subq Src, Dst} & Subtract \\
-        \texttt{imulq Src, Dst} & Multiply \\
-        \texttt{salq Src, Dst} & Left Shift \\
-        \texttt{sarq Src, Dst} & Arithmetic Right Shift \\
-        \texttt{shrq Src, Dst} & Logical Right Shift \\
-        \texttt{xorq Src, Dst} & Exclusive OR \\
-        \texttt{andq Src, Dst} & And \\
-        \texttt{orq Src, Dst} & Or \\
+        \texttt{leaq Src, Dst} & Load Effective Address (address calc) \\
+        \texttt{addq Src, Dst} & Add: Dst = Dst + Src \\
+        \texttt{subq Src, Dst} & Subtract: Dst = Dst - Src \\
+        \texttt{imulq Src, Dst} & Multiply: Dst = Dst * Src \\
+        \texttt{salq/shlq k, Dst} & Left Shift: Dst = Dst << k \\
+        \texttt{sarq/shrq k, Dst} & Right Shift (Arith/Logical) \\
+        \texttt{incq Dst} & Increment: Dst++ \\
+        \texttt{decq Dst} & Decrement: Dst-- \\
+        \texttt{negq Dst} & Negate: Dst = -Dst \\
+        \texttt{notq Dst} & Bitwise NOT: Dst = ~Dst \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\section{Week 2: Machine-Level Programming II, III, \& IV}
+\section*{Control, Procedures, Data}
 
-\subsection{Control Flow}
+\subsection*{Control Flow \& Comparisons}
 \begin{itemize}
-    \item \textbf{Condition Codes:} Single-bit registers set by arithmetic/logical operations.
+    \item \textbf{Condition Codes:} Single-bit flags (CF, ZF, SF, OF) set by arithmetic operations.
+    \item \textbf{Compare and Test:}
     \begin{itemize}
-        \item CF: Carry Flag
-        \item ZF: Zero Flag
-        \item SF: Sign Flag
-        \item OF: Overflow Flag
+        \item \texttt{cmpq Src2, Src1}: Sets flags based on `Src1 - Src2`.
+        \item \texttt{testq Src2, Src1}: Sets flags based on `Src1 & Src2`.
     \end{itemize}
-    \item \textbf{Instructions:}
+\end{itemize}
+\begin{table}[h]
+    \caption{Conditional Set and Jump Instructions}
+    \scriptsize
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{SetX/jX} & \textbf{Condition} & \textbf{Based On} \\
+        \midrule
+        e & Equal / Zero & ZF \\
+        ne & Not Equal / Not Zero & $\sim$ZF \\
+        s / ns & Negative / Non-negative & SF / $\sim$SF \\
+        g / ge & Greater / ...or Equal (signed) & $\sim(SF\wedge OF)\& \sim ZF$ \\
+        l / le & Less / ...or Equal (signed) & $SF\wedge OF$ \\
+        a / b & Above / Below (unsigned) & $\sim CF\& \sim ZF$ / $CF$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection*{Loop Implementation}
+Loops are converted to `do-while` forms with conditional jumps. `while` loops often use a "jump-to-middle" pattern.
+\begin{lstlisting}[language=c, basicstyle=\ttfamily\tiny, caption=While-loop translation]
+goto test;
+loop:
+    Body;
+test:
+    if (Test) goto loop;
+\end{lstlisting}
+
+\subsubsection*{Switch Statements \& Jump Tables}
+For dense cases, `switch` statements are implemented with a **jump table** (an array of code addresses) for efficient, direct branching to the correct code block via an indirect jump (`jmp *...`).
+
+\subsection*{Procedures (Functions)}
+\begin{itemize}
+    \item \textbf{Stack Frame:} Region of the stack for a call. Holds return info, local variables, and arguments.
+    \item \textbf{Control Transfer:} `call` pushes return address and jumps; `ret` pops address and jumps back.
+\end{itemize}
+\begin{center}
+\begin{tikzpicture}[scale=0.75, transform shape]
+    \node[draw, rectangle, minimum height=0.6cm, minimum width=2.5cm, minimum height=0.8cm, align=center] (args) at (0,0) {\scriptsize Arguments 7+};
+    \node[draw, rectangle, minimum height=0.6cm, minimum width=2.5cm, below=0 of args, minimum height=0.8cm, align=center] (ret) {\scriptsize Return Address};
+    \node[draw, rectangle, minimum height=0.6cm, minimum width=2.5cm, below=0 of ret, minimum height=2.5cm, align=center] (current) {\scriptsize Saved Registers,\\ \scriptsize Local Variables};
+    \node[draw, rectangle, minimum height=0.6cm, minimum width=2.5cm, below=0 of current, minimum height=0.8cm, align=center] (build) {\scriptsize Argument Build};
+    \draw[decorate, decoration={brace, amplitude=5pt}, thick] ($(args.north west)+(-0.1,0)$) -- ($(ret.south west)+(-0.1,0)$) node[midway, left, xshift=-3pt] {Caller Frame};
+    \draw[thick, ->] (2, -3.5) node[left] {\%rsp} -- (build.south);
+\end{tikzpicture}
+\end{center}
+
+\subsection*{Data Structures}
+\subsubsection*{Arrays}
+A nested array `int A[R][C]` is a single contiguous memory block. Access is `Address(A) + (i*C + j) * sizeof(int)`. A multi-level array `int* A[R]` is an array of pointers, requiring two memory accesses to get to an element.
+
+\subsubsection*{Structures \& Alignment}
+Structs group data but may include padding for alignment.
+\begin{itemize}
+    \item \textbf{Alignment Rule}: Data of size $K$ bytes must have an address that is a multiple of $K$.
+    \item \textbf{Padding}: Compiler inserts unused bytes to align fields and ensure total struct size is a multiple of the largest field's alignment. To save space, declare larger fields first.
+\end{itemize}
+\begin{lstlisting}[language=c, basicstyle=\ttfamily\tiny, caption=Alignment Padding]
+struct S { char c; int i; }; // sizeof is 8, not 5
+// Layout: |c|pad|pad|pad|  i  |
+\end{lstlisting}
+
+\subsubsection*{Floating Point}
+Uses separate **XMM registers** (\%xmm0-\%xmm15) for arguments and return values. Instructions like `addss` (single-precision) and `addsd` (double-precision) perform FP arithmetic.
+
+\section*{Advanced Systems Concepts}
+
+\subsection*{Linking \& Compilation}
+\begin{tikzpicture}[scale=0.7, transform shape]
+    \node (c) [draw] {p1.c};
+    \node (s) [draw, right=of c] {p1.s};
+    \node (o) [draw, right=of s] {p1.o};
+    \node (e) [draw, right=of o] {p (exec)};
+    \draw [thick,->,>=stealth] (c) -- (s) node[midway, above, font=\scriptsize]{Compiler};
+    \draw [thick,->,>=stealth] (s) -- (o) node[midway, above, font=\scriptsize]{Assembler};
+    \draw [thick,->,>=stealth] (o) -- (e) node[midway, above, font=\scriptsize]{Linker};
+\end{tikzpicture}
+\begin{itemize}
+    \item \textbf{Symbol Resolution:} Matching symbol references to definitions.
+    \item \textbf{Relocation:} Updating addresses once final memory locations are known.
+\end{itemize}
+
+\subsection*{Memory and Buffers}
+\begin{itemize}
+    \item \textbf{Memory Layout:} Stack (grows down), Heap (grows up, `malloc`), Data (globals), Text (code).
+    \item \textbf{Buffer Overflow:} Writing beyond a buffer's boundaries, a major security vulnerability.
     \begin{itemize}
-        \item \texttt{cmpq Src2, Src1}: Sets condition codes based on \texttt{Src1 - Src2}.
-        \item \texttt{testq Src2, Src1}: Sets condition codes based on \texttt{Src1 \& Src2}.
-        \item \texttt{setX}: Sets a byte based on condition codes.
-        \item \texttt{jX}: Jumps based on condition codes.
+        \item \textbf{Protections:} Stack Canaries, Address Space Layout Randomization (ASLR), and Non-Executable (NX) stacks help prevent attacks.
+    \end{itemize}
+    \item \textbf{Byte Ordering (Endianness):}
+    \begin{itemize}
+        \item \textbf{Little Endian (x86):} Least significant byte at lowest address.
+        \item \textbf{Big Endian:} Most significant byte at lowest address.
     \end{itemize}
 \end{itemize}
 
-\subsection{Procedures}
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[
-        node distance=0cm,
-        frame/.style={draw, minimum width=3.5cm, align=center}
-    ]
-        % Define the stack frames vertically
-        \node (caller) [frame, minimum height=2cm] at (0, 3) {Arguments 7+\\Return Addr};
-        \node (callee) [frame, minimum height=4cm] at (0, 0) {Saved Registers\\Local Variables\\Argument Build};
-
-        % Add labels
-        \node[above=0.1cm of caller] {Caller Frame};
-        \node[below=0.1cm of callee] {Frame for proc};
-        
-        % Add pointers
-        \node (rbp_label) [left=2cm of callee, yshift=1cm] {\%rbp (Frame Pointer)};
-        \draw[-Stealth] (rbp_label) -- (callee.west |- rbp_label);
-
-        \node (rsp_label) [left=2cm of callee, yshift=-1.5cm] {\%rsp (Stack Pointer)};
-        \draw[-Stealth] (rsp_label) -- (callee.south west);
-
-    \end{tikzpicture}   
-    \caption{Stack Frame}
-\end{figure}
+\subsection*{Compiler Optimization}
 \begin{itemize}
-    \item \textbf{Stack Frame:} A region on the stack for a single procedure call.
-    \item \textbf{Control Transfer:}
-    \begin{itemize}
-        \item \texttt{call label}: Pushes return address, jumps to \texttt{label}.
-        \item \texttt{ret}: Pops return address, jumps to it.
-    \end{itemize}
-    \item \textbf{Register Saving Conventions:}
-    \begin{itemize}
-        \item \textbf{Caller-saved:} \%rax, \%rdi-\%r9, \%r10, \%r11
-        \item \textbf{Callee-saved:} \%rbx, \%r12-\%r14, \%rbp, \%rsp
-    \end{itemize}
-\end{itemize}
-
-\subsection{Data}
-\begin{itemize}
-    \item \textbf{Arrays:} Contiguous memory blocks.
-    \begin{itemize}
-        \item 1D: \texttt{T A[L]}
-        \item 2D: \texttt{T A[R][C]} (row-major order)
-    \end{itemize}
-    \item \textbf{Structs:} Memory block holding all fields, with padding for alignment.
-\end{itemize}
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[node distance=0cm]
-        \node (c) [mem, minimum width=1cm] {c};
-        \node (pad1) [mem, fill=gray!30, right=of c, minimum width=3cm] {3 bytes};
-        \node (i0) [mem, right=of pad1, minimum width=2cm] {i[0]};
-        \node (i1) [mem, right=of i0, minimum width=2cm] {i[1]};
-        \node (pad2) [mem, fill=gray!30, right=of i1, minimum width=4cm] {4 bytes};
-        \node (v) [mem, right=of pad2, minimum width=4cm] {v};
-        
-        \node[below=0.2cm of c] {p+0};
-        \node[below=0.2cm of pad1] {p+4};
-        \node[below=0.2cm of i0] {}; % Adjusted for spacing
-        \node[below=0.2cm of i1] {p+8};
-        \node[below=0.2cm of pad2] {p+16};
-        \node[below=0.2cm of v] {p+24};
-    \end{tikzpicture}
-    \caption{Struct Alignment}
-\end{figure}
-
-\section{Week 3: Linking, Advanced Topics, and Optimization}
-
-\subsection{Linking}
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[node distance=2.5cm, auto]
-        \node (main_c) [block, fill=green!20] {main.c};
-        \node (sum_c) [block, fill=green!20, right=of main_c, xshift=2cm] {sum.c};
-        \node (main_o) [block, fill=yellow!20, below=of main_c] {main.o};
-        \node (sum_o) [block, fill=yellow!20, below=of sum_c] {sum.o};
-        \node (linker) [process, below=of main_o, yshift=-1.25cm, xshift=2.5cm, minimum width=5cm] {Linker (ld)};
-        \node (prog) [block, fill=red!20, below=of linker, yshift=-1.25cm] {prog};
-        
-        \draw[arrow] (main_c) -- node[midway, right] {Translators} (main_o);
-        \draw[arrow] (sum_c) -- node[midway, right] {Translators} (sum_o);
-        \draw[arrow] (main_o) -- (linker);
-        \draw[arrow] (sum_o) -- (linker);
-        \draw[arrow] (linker) -- (prog);
-    \end{tikzpicture}
-    \caption{Linking Process}
-\end{figure}
-
-\subsection{Advanced Topics}
-\begin{itemize}
-    \item \textbf{Memory Layout:} Stack, Heap, Data, Text.
-    \item \textbf{Buffer Overflow:} Writing data beyond a buffer's boundaries, a major security vulnerability.
-    \item \textbf{Unions:} Data structures that store different data types in the same memory location.
-\end{itemize}
-\begin{figure}[h!]
-    \centering
-    \begin{tikzpicture}[
-        % Define a style for the boxes inside the stack
-        stack_box/.style={draw, minimum width=3.5cm, minimum height=1.2cm, align=center}
-    ]
-        % --- Draw the stack elements at fixed positions ---
-        \node (ret_addr) [stack_box] at (0, 3) {return\\address A};
-        \node (pad)      [stack_box] at (0, 1.5) {pad};
-        \node (exploit)  [stack_box, fill=blue!20] at (0, 0) {exploit\\code};
-
-        % --- Draw the outer frame boxes at fixed positions ---
-        \draw (-2, 2.25) rectangle (2, 3.75);
-        \node[right] at (2.1, 3) {P stack frame};
-
-        \draw (-2, -0.75) rectangle (2, 2.25);
-        \node[right] at (2.1, 0.75) {Q stack frame};
-        
-        % --- Add labels and arrows at fixed positions ---
-        \node (b_label) at (-3.5, 0) {B};
-        \draw[-Stealth, thick] (b_label) -- (exploit.west);
-
-        \draw[-Stealth, red, thick, out=180, in=180]
-            (exploit.west) to node[left=0.2cm, align=center] {Overwrite return\\address A with B} (ret_addr.west);
-
-        % --- Draw the brace and its label ---
-        \draw[decorate, decoration={brace, amplitude=10pt, mirror, raise=4pt}]
-            (exploit.east) -- (pad.east) 
-            node[midway, right, xshift=15pt, align=left] {data written\\by gets()};
-
-    \end{tikzpicture}
-    \caption{Buffer Overflow Attack}
-\end{figure}
-
-
-
-\subsection{Optimization}
-\begin{itemize}
-    \item \textbf{Constant Folding:} Compile-time evaluation of constant expressions.
+    \item \textbf{Constant Folding:} Pre-calculating constant expressions.
     \item \textbf{Dead Code Elimination:} Removing unreachable code.
-    \item \textbf{Common Subexpression Elimination:} Reusing results of computations.
+    \item \textbf{Common Subexpression Elimination:} Reusing results of identical calculations.
     \item \textbf{Code Motion:} Moving loop-invariant code out of loops.
-    \item \textbf{Inlining:} Replacing function calls with the function's body.
+    \item \textbf{Inlining:} Replacing a function call with its body.
 \end{itemize}
 
-\section{Week 4: ECF and Memory Hierarchy}
+\section*{ECF \& Memory Hierarchy}
 
-\subsection{Exceptional Control Flow (ECF)}
-\begin{itemize}
-    \item \textbf{Exceptions:} Transfer of control to the OS.
-    \item \textbf{Processes:} Instances of running programs.
-    \item \textbf{Signals:} Messages notifying a process of an event.
-\end{itemize}
-\begin{figure}[h]
+\subsection*{Exceptional Control Flow (ECF)}
+ECF is a mechanism for reacting to system events by transferring control from normal program flow to the kernel.
+\begin{table}[h]
     \centering
-    \begin{tikzpicture}[>=Stealth]
-        % Timeline arrow
-        \draw[->, very thick] (0,5) -> (0,0) node[below] {Time};
+    \caption{Types of Exceptions}
+    \scriptsize
+    \begin{tabular}{lll}
+        \toprule
+        Type & Cause & Return Behavior \\
+        \midrule
+        Interrupt & External event (I/O) & Returns to next instruction \\
+        Trap & Intentional (syscall) & Returns to next instruction \\
+        Fault & Error (page fault) & Might re-execute or abort \\
+        Abort & Fatal error & Does not return \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-        % Process flows with labels
-        \node (pA_label) at (1.5, 5) {Process A};
-        \draw[thick] (pA_label.south) -- +(0,-1);
-        \draw[thick, red] (pA_label.south) ++(0,-1) -- +(0,-1);
-        \draw[thick] (pA_label.south) ++(0,-2) -- +(0,-1);
-        \draw[thick, red] (pA_label.south) ++(0,-3) -- +(0,-1);
-
-        \node (pB_label) [right=1.5cm of pA_label] {Process B};
-        \draw[thick, yellow!80!black] (pB_label.south) ++(0,-0.5) -- +(0,-0.5);
-
-        \node (pC_label) [right=1.5cm of pB_label] {Process C};
-        \draw[thick, red] (pC_label.south) ++(0,-1.5) -- +(0,-0.5);
-        \draw[thick, red] (pC_label.south) ++(0,-3.5) -- +(0,-0.5);
-
-    \end{tikzpicture}
-    \caption{Concurrent Process Execution}
-\end{figure}
-
-\subsection{The Memory Hierarchy}
+\subsection*{Processes \& Signals}
+A **process** is an instance of a running program. A **signal** is a kernel message to a process about an event.
 \begin{itemize}
-    \item \textbf{Locality:}
+    \item \texttt{fork()}: Creates a near-identical child process. Returns child's PID to parent, 0 to child.
+    \item \texttt{execve()}: Replaces the current process image with a new program.
+    \item \texttt{waitpid()}: Parent reaps a terminated child process to prevent it from becoming a "zombie".
+    \item \textbf{SIGCHLD:} Signal sent to parent when a child terminates.
+    \item \textbf{SIGINT:} Sent by Ctrl-C.
+    \item \textbf{SIGSEGV:} Segmentation fault (invalid memory access).
+\end{itemize}
+
+\subsection*{Memory Hierarchy}
+\begin{itemize}
+    \item \textbf{Locality:} The tendency for programs to access data and instructions near those they have recently accessed.
     \begin{itemize}
-        \item \textbf{Temporal:} Recently accessed items are likely to be accessed again.
-        \item \textbf{Spatial:} Items with nearby addresses are likely to be accessed together.
+        \item \textbf{Temporal:} Recently referenced items are likely to be referenced again soon.
+        \item \textbf{Spatial:} Items with nearby addresses tend to be referenced together in time.
     \end{itemize}
-    \item \textbf{Caching:} Using a smaller, faster memory to store a subset of data from a larger, slower memory.
+    \item \textbf{Caching:} Using smaller, faster storage (e.g., SRAM) to stage data for larger, slower storage (e.g., DRAM). Locality makes caching effective.
+    \item \textbf{Cache Misses:}
+    \begin{itemize}
+        \item \textbf{Cold (Compulsory):} Cache is empty.
+        \item \textbf{Conflict:} Multiple data objects map to the same cache block, causing evictions.
+        \item \textbf{Capacity:} The working set of active blocks is larger than the cache.
+    \end{itemize}
+    \item \textbf{Disk Access Time} = $T_{avg\_seek} + T_{avg\_rotation} + T_{avg\_transfer}$.
 \end{itemize}
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}[scale=0.9]
-        \draw (0,0) -- (4,4) -- (8,0) -- cycle;
-        \node at (4,3.5) {Registers};
-        \draw (3,3) -- (5,3);
-        \node at (4,2.5) {L1/L2 Cache (SRAM)};
-        \draw (2,2) -- (6,2);
-        \node at (4,1.5) {Main Memory (DRAM)};
-        \draw (1,1) -- (7,1);
-        \node at (4,0.5) {Local Secondary Storage (Disk/SSD)};
-    \end{tikzpicture}
-    \caption{Memory Hierarchy}
-\end{figure}
 
-\section{Week 5: Virtual Memory}
-
-\subsection{Virtual Memory (VM)}
+\section*{Virtual Memory (VM)}
+\subsection*{VM Concepts}
 \begin{itemize}
-    \item \textbf{Address Spaces:} Virtual (program's view) and Physical (hardware's view).
-    \item \textbf{Page Table:} Maps virtual pages to physical pages.
-    \item \textbf{Page Fault:} An exception that occurs when a program accesses a page that is not in physical memory.
-    \item \textbf{Address Translation:} The process of converting a virtual address to a physical address.
+    \item \textbf{Address Spaces:}
+    \begin{itemize}
+        \item \textbf{Virtual (VA):} Uniform address space seen by a process.
+        \item \textbf{Physical (PA):} Actual addresses in hardware memory.
+    \end{itemize}
+    \item \textbf{Pages \& Page Tables:} VM is divided into fixed-size blocks (pages). A per-process **page table** maps virtual pages to physical pages.
+    \item \textbf{Page Fault:} An exception when a referenced page is not in physical memory. The OS handles it by loading the page from disk (demand paging).
+    \item \textbf{Benefits:} Efficient memory use (caching), simplified memory management, and memory protection via permission bits in Page Table Entries (PTEs).
 \end{itemize}
-\begin{figure}[h]
-    \centering
-    % The 'scale' option is a better way to resize TikZ diagrams
-    \begin{tikzpicture}[scale=0.8, transform shape, node distance=1.5cm and 1cm, >=Stealth]
-        % Top Layer: Virtual Address
-        \node (va_label) at (3.5, 3) {Virtual Address};
-        \node (vpn) [draw, minimum width=2.5cm, minimum height=0.75cm] at (2,2) {VPN};
-        \node (vpo) [draw, minimum width=2.5cm, minimum height=0.75cm] at (5,2) {VPO};
-        % Use a 'fit' node to draw the outer box without filling
-        \node[fit=(vpn)(vpo), draw, inner sep=0.1cm] (va_box) {};
 
-        % Middle Layer: Page Table
-        \node (ptbr) [draw, rounded corners, fill=red!20, minimum height=0.75cm] at (-2,1) {PTBR};
-        \node (pt) [matrix of nodes, below=0.5cm of vpn,
-            nodes={draw, minimum width=1.4cm, minimum height=0.6cm},
-            row sep=-\pgflinewidth, column sep=-\pgflinewidth]
-        {
-            \node[fill=gray!20]{Valid}; & \node[fill=gray!20]{PPN}; \\
-            1 & 0x1A \\
-            0 & null \\
-            1 & 0x2B \\
-        };
-        
-        % Bottom Layer: Physical Address
-        \node (pa_label) at (3.5, -4) {Physical Address};
-        \node (ppn) [draw, minimum width=2.5cm, minimum height=0.75cm] at (2,-3) {PPN};
-        \node (ppo) [draw, minimum width=2.5cm, minimum height=0.75cm] at (5,-3) {PPO};
-        % Use a 'fit' node for the outer box
-        \node[fit=(ppn)(ppo), draw, inner sep=0.1cm] (pa_box) {};
+\subsection*{Address Translation}
+The Memory Management Unit (MMU) translates VAs to PAs. A **Translation Lookaside Buffer (TLB)** is a small hardware cache of PTEs to speed this up.
+\begin{itemize}
+    \item \textbf{VA parts:} Virtual Page Number (VPN) and Virtual Page Offset (VPO).
+    \item \textbf{PA parts:} Physical Page Number (PPN) and Physical Page Offset (PPO).
+    \item \textbf{Process:} VPN is used to find the PTE in the TLB or page table. The PPN from the PTE is combined with the original VPO (which is the same as the PPO) to form the physical address.
+\end{itemize}
+\begin{center}
+\begin{tikzpicture}[scale=0.8, transform shape]
+    % Virtual Address
+    \node (va_label) at (1.5, 1.5) {Virtual Address};
+    \draw (0,0.5) rectangle (3,1);
+    \node at (0.75, 0.75) {VPN};
+    \node at (2.25, 0.75) {VPO};
+    \draw (1.5,0.5) -- (1.5,1);
+    
+    % Page Table
+    \node (pt_label) at (0, -1.5) {Page Table};
+    \draw (0,-2) rectangle (1.5,-3);
+    \node[align=center, font=\scriptsize] at (0.75, -2.5) {PTE \\ (find PPN)};
+    
+    % Physical Address
+    \node (pa_label) at (4.5, -1.5) {Physical Address};
+    \draw (3,-2) rectangle (6,-2.5);
+    \node at (3.75, -2.25) {PPN};
+    \node at (5.25, -2.25) {PPO};
+    \draw (4.5,-2) -- (4.5,-2.5);
 
-        % Arrows
-        \draw[arrow] (ptbr.east) -| (pt.west);
-        \draw[arrow] (vpn.south) -- (pt.north);
-        \draw[arrow] (vpo.south) |- (ppo.north);
-        \draw[arrow] (pt-2-2.south) |- (ppn.north);
-    \end{tikzpicture}
-    \caption{Address Translation}
-\end{figure}
-
+    % Arrows
+    \draw[arrow] (0.75, 0.5) -- (0.75, -2);
+    \draw[arrow] (2.25, 0.5) -- (5.25, -2);
+    \draw[arrow] (1.5, -2.5) -- (3, -2.25);
+\end{tikzpicture}
+\end{center}
+\begin{itemize}
+    \item \textbf{Memory Mapping (`mmap`):} Creates a new VM area and associates it with an object on disk (e.g., a file or anonymous memory).
+    \item \textbf{Copy-on-Write (COW):} `fork()` uses COW to defer physical memory copying until a write occurs, making process creation fast.
+\end{itemize}
 \end{document}
